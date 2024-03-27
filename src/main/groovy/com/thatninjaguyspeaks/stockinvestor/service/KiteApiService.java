@@ -8,6 +8,7 @@ import java.io.IOException;
 
 @Component
 public interface KiteApiService {
-    public Object getProfileInfo(String requestId);
     public KiteConnect generateSession(String requestId) throws IOException, KiteException;
+    public Object getProfileInfo(String requestId);
+    public void importStocks(String requestId);
 }
