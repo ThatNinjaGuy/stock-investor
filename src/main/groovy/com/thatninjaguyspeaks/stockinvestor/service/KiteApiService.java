@@ -8,7 +8,8 @@ import java.io.IOException;
 
 @Component
 public interface KiteApiService {
-    public KiteConnect generateSession(String requestId) throws IOException, KiteException;
-    public Object getProfileInfo(String requestId);
-    public void importStocks(String requestId);
+    KiteConnect generateSession(String requestId) throws IOException, KiteException;
+    Object getProfileInfo(String requestId);
+    void importStocks(String requestId);
+    void evaluateStrategy(String requestId);
 }

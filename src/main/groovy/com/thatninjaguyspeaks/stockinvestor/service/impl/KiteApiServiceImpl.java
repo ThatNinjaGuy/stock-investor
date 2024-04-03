@@ -2,6 +2,8 @@ package com.thatninjaguyspeaks.stockinvestor.service.impl;
 
 import com.thatninjaguyspeaks.stockinvestor.service.KiteApiService;
 import com.thatninjaguyspeaks.stockinvestor.util.JsonFileGenerator;
+import com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy;
+import com.thatninjaguyspeaks.stockinvestor.util.Strategy;
 import com.zerodhatech.kiteconnect.KiteConnect;
 import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
 import com.zerodhatech.models.Instrument;
@@ -26,7 +28,7 @@ public class KiteApiServiceImpl implements KiteApiService {
     private static final String API_KEY ="96t9owg96o6tek5e";
     private static final String API_SECRET ="ehmzgx0ckqe9wjkcbnj0h2tv66zvpk7v";
     private static final String ZERODHA_USER_ID ="FXL410";
-    private static KiteConnect kiteSdk;
+    public static KiteConnect kiteSdk;
     private Map<String, Instrument> companyList = new HashMap<>();
 
     @Override
@@ -78,13 +80,19 @@ public class KiteApiServiceImpl implements KiteApiService {
             companyList = instruments.parallelStream()
                     .filter(x -> (!x.segment.equals("INDICES"))&&(x.exchange.equals("NSE"))&&(x.name!=null)&&(x.instrument_type.equals("EQ")))
                     .collect(Collectors.toMap(Instrument::getTradingsymbol, Function.identity()));
-            logger.info("Generated instruments {}", instruments);
         } catch (KiteException | IOException | JSONException e) {
             logger.error("Failed with exception");
             e.printStackTrace();
         }
         logger.info("{} STOCKS IMPORTED", companyList.size());
         JsonFileGenerator.persistData(companyList, "companyList.json");
+    }
+
+    @Override
+    public void evaluateStrategy(String requestId) {
+        if(companyList==null || companyList.size()==0)
+            importStocks(requestId);
+        new Thread(new Strategy(companyList)).start();
     }
 
 }

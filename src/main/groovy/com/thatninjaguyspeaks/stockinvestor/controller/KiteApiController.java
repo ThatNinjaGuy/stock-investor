@@ -50,4 +50,14 @@ public class KiteApiController {
         return ResponseEntity.ok("Process executed");
     }
 
+    @GetMapping("/strategy/evaluate/{requestId}")
+    @Operation(summary = "Import stock market data", description = "Get live market data")
+    @ApiResponse(responseCode = "200", description = "Data retrieved successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Object.class)))
+    public ResponseEntity<Object> evaluateStrategy(@PathVariable String requestId) {
+        kiteApiService.evaluateStrategy(requestId);
+        return ResponseEntity.ok("Process executed");
+    }
+
 }
