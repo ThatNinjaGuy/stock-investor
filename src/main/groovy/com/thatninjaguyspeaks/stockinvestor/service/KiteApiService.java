@@ -11,5 +11,10 @@ public interface KiteApiService {
     KiteConnect generateSession(String requestId) throws IOException, KiteException;
     Object getProfileInfo(String requestId);
     void importStocks(String requestId);
+
+    void updateHistoricalData(String requestId);
+
     void evaluateStrategy(String requestId);
+
+    void loadHistoricalDataInternal();
 }

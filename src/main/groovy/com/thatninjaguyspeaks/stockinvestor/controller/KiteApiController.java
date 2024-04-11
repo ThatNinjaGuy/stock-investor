@@ -60,4 +60,24 @@ public class KiteApiController {
         return ResponseEntity.ok("Process executed");
     }
 
+    @GetMapping("/history/{requestId}")
+    @Operation(summary = "Import stock market data", description = "Get live market data")
+    @ApiResponse(responseCode = "200", description = "Data retrieved successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Object.class)))
+    public ResponseEntity<Object> getHistoricalData(@PathVariable String requestId) {
+        kiteApiService.updateHistoricalData(requestId);
+        return ResponseEntity.ok("Process executed");
+    }
+
+    @GetMapping("/history/load")
+    @Operation(summary = "Import stock market data", description = "Get live market data")
+    @ApiResponse(responseCode = "200", description = "Data retrieved successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Object.class)))
+    public ResponseEntity<Object> loadHistoricalDataInternal() {
+        kiteApiService.loadHistoricalDataInternal();
+        return ResponseEntity.ok("Process executed");
+    }
+
 }
