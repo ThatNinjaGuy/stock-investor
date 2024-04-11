@@ -1,19 +1,16 @@
 package com.thatninjaguyspeaks.stockinvestor.util;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
 import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.IntervalMarker;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.Layer;
-import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.awt.*;
 import java.text.ParseException;
@@ -29,8 +26,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class RsiChart {
-
-
     private static JFreeChart createChart(Map<String, Double> rsiValues) {
         TimeSeries series = new TimeSeries("RSI");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

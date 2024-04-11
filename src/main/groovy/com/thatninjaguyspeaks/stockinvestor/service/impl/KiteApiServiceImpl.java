@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.thatninjaguyspeaks.stockinvestor.util.BollingerBandsChart.saveBollingerChartAsPNG;
+import static com.thatninjaguyspeaks.stockinvestor.util.BollingerBandsStrategy.calculateDailyBollingerBands;
 import static com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy.calculateDailyRSI;
 import static com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy.calculateRSI;
 
@@ -140,9 +142,21 @@ public class KiteApiServiceImpl implements KiteApiService {
     }
 
     @Override
-    public Map<String, List<String>> evaluateStrategy(String instrumentName, int rsiPeriod, double lowerThreshold, double upperThreshold) {
+    public Object evaluateStrategy(String instrumentName, int rsiPeriod, double lowerThreshold, double upperThreshold) {
         if(allStockHistory==null || allStockHistory.size()==0)
             loadHistoricalDataInternal();
+//        return runRsiStrategy(instrumentName, rsiPeriod, lowerThreshold, upperThreshold);
+        return runBollingerBandsStrategy(instrumentName, rsiPeriod, lowerThreshold, upperThreshold);
+
+    }
+
+    @Override
+    public void loadHistoricalDataInternal() {
+        allStockHistory = FileProcessorUtil.readAllStockData();
+        logger.info("Loaded historical data for {} stocks", allStockHistory.size());
+    }
+
+    private Map<String, List<String>> runRsiStrategy(String instrumentName, int rsiPeriod, double lowerThreshold, double upperThreshold) {
         Map<String, Double> rsiValues = calculateDailyRSI(allStockHistory.get(instrumentName.toLowerCase()).dataArrayList, rsiPeriod);
         logger.info("Calculated rsi for {} over {} days", instrumentName, rsiValues.size());
 
@@ -171,10 +185,41 @@ public class KiteApiServiceImpl implements KiteApiService {
         return indicatorResults;
     }
 
-    @Override
-    public void loadHistoricalDataInternal() {
-        allStockHistory = FileProcessorUtil.readAllStockData();
-        logger.info("Loaded historical data for {} stocks", allStockHistory.size());
-    }
+    private Map<String, List<String>> runBollingerBandsStrategy(String instrumentName, int bbPeriod, double lowerBound, double upperBound) {
+        Map<String, List<Double>> bandValues = calculateDailyBollingerBands(allStockHistory.get(instrumentName.toLowerCase()).dataArrayList, bbPeriod);
+        logger.info("Calculated Bollinger Bands for {} over {} days", instrumentName, bandValues.size());
 
+        Map<String, List<String>> indicatorResults = new HashMap<>();
+        List<String> overbought = new ArrayList<>();
+        List<String> oversold = new ArrayList<>();
+        List<String> normal = new ArrayList<>();
+
+        bandValues.forEach((date, values) -> {
+            double sma = values.get(0);       // Simple Moving Average (Middle Band)
+            double upperBand = values.get(1); // Upper Bollinger Band
+            double lowerBand = values.get(2); // Lower Bollinger Band
+            double closePrice = values.get(3); // Assuming close price is also passed in the list
+
+            if (closePrice > upperBand) {
+                overbought.add(String.format("%s %f %f %f %f - OVERBOUGHT", date, closePrice, lowerBand, sma, upperBand));
+            } else if (closePrice < lowerBand) {
+                oversold.add(String.format("%s %f %f %f %f - OVERSOLD", date, closePrice, lowerBand, sma, upperBand));
+            } else {
+                normal.add(String.format("%s %f %f %f %f - NORMAL", date, closePrice, lowerBand, sma, upperBand));
+            }
+        });
+
+        logger.info("Completed analysis for {}", instrumentName);
+        overbought.sort(Comparator.reverseOrder());
+        oversold.sort(Comparator.reverseOrder());
+        normal.sort(Comparator.reverseOrder());
+
+        indicatorResults.put("OVERBOUGHT", overbought);
+        indicatorResults.put("OVERSOLD", oversold);
+        indicatorResults.put("NORMAL", normal);
+
+        // Consider saving chart with Bollinger Bands plotted if needed
+        saveBollingerChartAsPNG("src/main/resources/bollinger-band-result.png", bandValues, bandValues.size()*20, 1800);
+        return indicatorResults;
+    }
 }
