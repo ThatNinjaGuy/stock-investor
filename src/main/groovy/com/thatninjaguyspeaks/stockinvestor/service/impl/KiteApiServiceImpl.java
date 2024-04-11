@@ -4,6 +4,7 @@ import com.thatninjaguyspeaks.stockinvestor.service.KiteApiService;
 import com.thatninjaguyspeaks.stockinvestor.util.FileProcessorUtil;
 //import com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy;
 //import com.thatninjaguyspeaks.stockinvestor.util.Strategy;
+import com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy;
 import com.zerodhatech.kiteconnect.KiteConnect;
 import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
 import com.zerodhatech.models.HistoricalData;
@@ -19,12 +20,12 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy.calculateDailyRSI;
+import static com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy.calculateRSI;
 
 @Component
 public class KiteApiServiceImpl implements KiteApiService {
@@ -35,6 +36,7 @@ public class KiteApiServiceImpl implements KiteApiService {
     private static final String ZERODHA_USER_ID = "FXL410";
     public static KiteConnect kiteSdk;
     private Map<String, Instrument> companyList = new HashMap<>();
+    private Map<String, HistoricalData> allStockHistory;
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -137,15 +139,40 @@ public class KiteApiServiceImpl implements KiteApiService {
     }
 
     @Override
-    public void evaluateStrategy(String requestId) {
-        if (companyList == null || companyList.size() == 0)
-            importStocks(requestId);
-//        new Thread(new Strategy(companyList)).start();
+    public Map<String, List<String>> evaluateStrategy(String instrumentName, int rsiPeriod, double lowerThreshold, double upperThreshold) {
+        if(allStockHistory==null || allStockHistory.size()==0)
+            loadHistoricalDataInternal();
+        Map<String, Double> rsiValues = calculateDailyRSI(allStockHistory.get(instrumentName.toLowerCase()).dataArrayList, rsiPeriod);
+        logger.info("Calculated rsi for {} over {} days", instrumentName, rsiValues.size());
+
+        Map<String, List<String>> indicatorResults = new HashMap<>();
+        List<String> overbought = new ArrayList<>();
+        List<String> oversold = new ArrayList<>();
+        List<String> normal = new ArrayList<>();
+
+        rsiValues.forEach((time, rsi) -> {
+            if (rsi > upperThreshold) {
+                overbought.add(String.format("%1s %2s - OVERBOUGHT", time, rsi));
+                logger.info("{} {} - OVERBOUGHT", time, rsi);
+            } else if (rsi < lowerThreshold) {
+                oversold.add(String.format("%1s %2s - OVERSOLD", time, rsi));
+                logger.info("{} {} - OVERSOLD", time, rsi);
+            } else{
+                normal.add(String.format("%1s %2s - NORMAL", time, rsi));
+                logger.info("{} {} - NORMAL", time, rsi);
+            }
+        });
+        logger.info("Completed analysis for {}", instrumentName);
+        indicatorResults.put("OVERBOUGHT", overbought);
+        indicatorResults.put("OVERSOLD", oversold);
+        indicatorResults.put("NORMAL", normal);
+        return indicatorResults;
     }
 
     @Override
     public void loadHistoricalDataInternal() {
-
+        allStockHistory = FileProcessorUtil.readAllStockData();
+        logger.info("Loaded historical data for {} stocks", allStockHistory.size());
     }
 
 }

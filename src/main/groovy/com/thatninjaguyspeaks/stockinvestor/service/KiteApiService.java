@@ -5,6 +5,8 @@ import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public interface KiteApiService {
@@ -14,7 +16,7 @@ public interface KiteApiService {
 
     void updateHistoricalData(String requestId);
 
-    void evaluateStrategy(String requestId);
+    Map<String, List<String>> evaluateStrategy(String instrumentName, int rsiPeriod, double lowerThreshold, double upperThreshold);
 
     void loadHistoricalDataInternal();
 }

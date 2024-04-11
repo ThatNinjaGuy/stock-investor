@@ -70,7 +70,10 @@ public class FileProcessorUtil {
         try(Stream<Path> files = Files.list(Paths.get(directoryPath))) {
             files.filter(path -> path.toString().endsWith(".csv"))
                     .forEach(path -> {
-                        String instrument = path.getFileName().toString().replaceAll("_", " ").replace(".csv", "");
+                        String instrument = path.getFileName().toString()
+                                .replaceAll("_", " ")
+                                .replace(".csv", "")
+                                .toLowerCase();
                         HistoricalData data = new HistoricalData();
                         try {
                             List<String> lines = Files.readAllLines(path);
@@ -83,11 +86,15 @@ public class FileProcessorUtil {
                                     dataPoint.close = Double.parseDouble(values[3]);
                                     dataPoint.low = Double.parseDouble(values[4]);
                                     dataPoint.high = Double.parseDouble(values[5]);
-                                    dataPoint.volume = Long.parseLong(values[6]);
+                                    dataPoint.volume = Long.parseLong(values[6].substring(0,values[6].contains(".")? values[6].indexOf('.') : values[6].length()));
                                     data.dataArrayList.add(dataPoint);
                                 }
                             }
                         } catch (IOException e) {
+                            logger.error("Failed to read stock data from file: {}", path);
+                            e.printStackTrace();
+                        }
+                        catch (Exception e) {
                             logger.error("Failed to read stock data from file: {}", path);
                             e.printStackTrace();
                         }
