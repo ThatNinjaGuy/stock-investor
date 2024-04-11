@@ -13,10 +13,7 @@ public interface KiteApiService {
     KiteConnect generateSession(String requestId) throws IOException, KiteException;
     Object getProfileInfo(String requestId);
     void importStocks(String requestId);
-
     void updateHistoricalData(String requestId);
-
     Map<String, List<String>> evaluateStrategy(String instrumentName, int rsiPeriod, double lowerThreshold, double upperThreshold);
-
     void loadHistoricalDataInternal();
 }

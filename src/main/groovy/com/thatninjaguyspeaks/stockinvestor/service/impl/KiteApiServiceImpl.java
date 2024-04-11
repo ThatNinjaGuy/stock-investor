@@ -154,13 +154,10 @@ public class KiteApiServiceImpl implements KiteApiService {
         rsiValues.forEach((time, rsi) -> {
             if (rsi > upperThreshold) {
                 overbought.add(String.format("%1s %2s - OVERBOUGHT", time, rsi));
-                logger.info("{} {} - OVERBOUGHT", time, rsi);
             } else if (rsi < lowerThreshold) {
                 oversold.add(String.format("%1s %2s - OVERSOLD", time, rsi));
-                logger.info("{} {} - OVERSOLD", time, rsi);
             } else{
                 normal.add(String.format("%1s %2s - NORMAL", time, rsi));
-                logger.info("{} {} - NORMAL", time, rsi);
             }
         });
         logger.info("Completed analysis for {}", instrumentName);
@@ -170,7 +167,7 @@ public class KiteApiServiceImpl implements KiteApiService {
         indicatorResults.put("OVERBOUGHT", overbought);
         indicatorResults.put("OVERSOLD", oversold);
         indicatorResults.put("NORMAL", normal);
-        RsiChart.saveChartAsPNG("src/main/resources/rsi-result.png",rsiValues, 800, 800);
+        RsiChart.saveChartAsPNG("src/main/resources/rsi-result.png",rsiValues, rsiValues.size()*20, 800);
         return indicatorResults;
     }
 
