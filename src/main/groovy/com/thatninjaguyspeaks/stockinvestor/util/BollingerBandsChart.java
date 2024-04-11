@@ -15,9 +15,12 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jfree.chart.ChartUtils;
 
 public class BollingerBandsChart {
@@ -31,8 +34,10 @@ public class BollingerBandsChart {
         TimeSeries lowerBandSeries = new TimeSeries("Lower Band");
         TimeSeries closePriceSeries = new TimeSeries("Close Price");
 
+        AtomicInteger count = new AtomicInteger(0);
         bandValues.forEach((date, values) -> {
             try {
+                count.getAndIncrement();
                 Date dateObj = dateFormat.parse(date);
                 Day day = new Day(dateObj);
                 double upperBand = values.get(1);
@@ -43,6 +48,8 @@ public class BollingerBandsChart {
                 middleBandSeries.add(day, middleBand);
                 lowerBandSeries.add(day, lowerBand);
                 closePriceSeries.add(day, closePrice);
+                if(count.get()>=500)
+                    return;
             } catch (Exception e) {
                 System.err.println("Error parsing date: " + date);
                 e.printStackTrace();
@@ -57,16 +64,18 @@ public class BollingerBandsChart {
 
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
                 "Bollinger Bands Chart",
-                "Date", "Value",
+                "Date",
+                "Value",
                 dataset,
                 true, true, false);
 
         XYPlot plot = (XYPlot) chart.getPlot();
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
+        List<Color> colorList = Arrays.asList(Color.red, Color.black, Color.green, Color.blue);
         // Setting renderer properties for each series
         for (int i = 0; i < dataset.getSeriesCount(); i++) {
-            renderer.setSeriesPaint(i, new Color(150/(i+1), 0, 150/(i+1)));
+            renderer.setSeriesPaint(i, colorList.get(i));
             renderer.setSeriesStroke(i, new BasicStroke(2.0f));
         }
 
