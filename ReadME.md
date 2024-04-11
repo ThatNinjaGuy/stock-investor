@@ -1,41 +1,57 @@
----
+# Stock Investor Application
 
-# Hazelcast Client Data
+Welcome to the Stock Investor Application, a sophisticated tool designed to facilitate advanced stock market analysis through the Kite API. This application enables users to retrieve historical stock data, calculate Relative Strength Index (RSI) and Bollinger Bands, and visually analyze these indicators through generated charts.
 
-This repository contains the implementation of a Hazelcast client application.
+## Features
 
-## Controller Endpoints
+- **Kite API Integration**: Connects with the Kite API to fetch real-time and historical stock data.
+- **Historical Data Importation**: Imports stocks and their historical data for comprehensive analysis.
+- **RSI Calculation**: Calculates the RSI for stocks to identify overbought and oversold conditions.
+- **Bollinger Bands Calculation**: Utilizes Bollinger Bands to provide insights into market volatility and price levels relative to moving averages.
+- **Data Visualization**: Generates charts for both RSI and Bollinger Bands to visually interpret the stock market behavior.
+- **Robust Error Handling**: Implements detailed logging and error management to ensure reliable operation.
 
-### Map Controller
+## Installation
 
-The [MapController](https://github.com/DeadshotTech/hazelcast-client-data/blob/master/src/main/groovy/com/thatninjaguyspeaks/hazelcast/controller/MapController.java) provides the following endpoints:
+To set up the Stock Investor Application, follow these steps:
 
-- `GET /com/thatninjaguyspeaks/hazelcast/map/{key}`: Retrieve data from the map using the provided key.
-- `PUT /com/thatninjaguyspeaks/hazelcast/map/put`: Insert data into the map.
-- `PUT /com/thatninjaguyspeaks/hazelcast/map/put-default`: Insert default data into the map.
-- `DELETE /com/thatninjaguyspeaks/hazelcast/map/destroy-map`: Delete the entire map.
-- `POST /com/thatninjaguyspeaks/hazelcast/map/sql`: Execute an SQL query on the map.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/thatninjaguyspeaks/stock-investor
+   cd stock-investor
 
-## Utility Files
+2. **Build the project** (assuming Maven is used):
 
-- **ConfigUtils**: Utility functions related to configuration.
-- **DataConvertorUtils**: Functions for converting data between different formats.
-- **KeyGenerator**: Utility for generating unique keys.
+3. **Set up API credentials**:
+- Update the `API_KEY` and `API_SECRET` in the `KiteApiServiceImpl` class with your own credentials from Kite.
 
-## Serializers
+4. **Run the application**:
+- Ensure Java 11 or higher is installed.
+- Run the main class to start the application.
 
-#### AvroCustomSerializer
+## Usage
 
-The [AvroCustomSerializer](https://github.com/DeadshotTech/hazelcast-client-data/blob/master/src/main/groovy/com/thatninjaguyspeaks/hazelcast/serializers/AvroCustomSerializer.java) class provides custom serialization and deserialization using the Avro framework. This serializer is designed to work with Avro schemas and provides methods to write and read data in Avro format.
+### Importing Stock Data
+To import stock data:
+```
+// Import stocks
+kiteApiService.importStocks("your-request-id");
 
-### Config Classes
+// Update historical data
+kiteApiService.updateHistoricalData("your-request-id");
 
-#### ConfigurationLoader
+// Evaluate RSI strategy
+Map<String, List<String>> rsiResults = kiteApiService.evaluateStrategy("stock-symbol", 14, 30, 70);
 
-The [ConfigurationLoader](https://github.com/DeadshotTech/hazelcast-client-data/blob/master/src/main/groovy/com/thatninjaguyspeaks/hazelcast/config/ConfigurationLoader.java) class is responsible for loading configurations for maps from a YAML file (`map-configurations.yaml`). It reads the configurations during the application's startup and provides a method to retrieve the list of map configurations.
+// Evaluate Bollinger Bands strategy
+Map<String, List<String>> bbResults = kiteApiService.evaluateStrategy("stock-symbol", 20, 30, 70);
+```
 
-## Swagger Documentation
+## Configuration
+Configure your API details and other settings in KiteApiServiceImpl.java as per your requirements.
 
-The application provides a Swagger UI for API documentation and testing. You can access the Swagger UI at the `/swagger-ui/` endpoint of your deployed application.
+## Contributing
+Contributions are welcome! Please fork the repository and submit pull requests with your suggested changes.
 
----
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
