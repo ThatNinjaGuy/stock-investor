@@ -4,6 +4,7 @@ import com.thatninjaguyspeaks.stockinvestor.service.KiteApiService;
 import com.thatninjaguyspeaks.stockinvestor.util.FileProcessorUtil;
 //import com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy;
 //import com.thatninjaguyspeaks.stockinvestor.util.Strategy;
+import com.thatninjaguyspeaks.stockinvestor.util.RsiChart;
 import com.thatninjaguyspeaks.stockinvestor.util.RsiStrategy;
 import com.zerodhatech.kiteconnect.KiteConnect;
 import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
@@ -163,9 +164,13 @@ public class KiteApiServiceImpl implements KiteApiService {
             }
         });
         logger.info("Completed analysis for {}", instrumentName);
+        overbought.sort(Comparator.reverseOrder());
+        oversold.sort(Comparator.reverseOrder());
+        normal.sort(Comparator.reverseOrder());
         indicatorResults.put("OVERBOUGHT", overbought);
         indicatorResults.put("OVERSOLD", oversold);
         indicatorResults.put("NORMAL", normal);
+        RsiChart.saveChartAsPNG("src/main/resources/rsi-result.png",rsiValues, 800, 800);
         return indicatorResults;
     }
 

@@ -40,6 +40,10 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
     implementation 'com.zerodhatech.kiteconnect:kiteconnect:3.0.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
+    // JFreeChart for charting
+    implementation 'org.jfree:jfreechart:1.5.3'
+    // JCommon library needed by JFreeChart
+    implementation 'org.jfree:jcommon:1.0.24'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
