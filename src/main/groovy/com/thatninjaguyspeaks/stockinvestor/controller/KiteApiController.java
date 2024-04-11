@@ -50,13 +50,36 @@ public class KiteApiController {
         return ResponseEntity.ok("Process executed");
     }
 
-    @GetMapping("/strategy/evaluate/{requestId}")
+    @GetMapping("/evaluate/{instrumentName}/{rsiPeriod}/{lowerThreshold}/{upperThreshold}")
+    @Operation(summary = "Check the strategy", description = "Evaluate the strategy over a particular stock and get buy and sell signals")
+    @ApiResponse(responseCode = "200", description = "Data retrieved successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Object.class)))
+    public ResponseEntity<Object> evaluateStrategy(@PathVariable String instrumentName,
+                                                   @PathVariable int rsiPeriod,
+                                                   @PathVariable double lowerThreshold,
+                                                   @PathVariable double upperThreshold) {
+
+        return ResponseEntity.ok(kiteApiService.evaluateStrategy(instrumentName, rsiPeriod, lowerThreshold, upperThreshold));
+    }
+
+    @GetMapping("/history/{requestId}")
     @Operation(summary = "Import stock market data", description = "Get live market data")
     @ApiResponse(responseCode = "200", description = "Data retrieved successfully",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = Object.class)))
-    public ResponseEntity<Object> evaluateStrategy(@PathVariable String requestId) {
-        kiteApiService.evaluateStrategy(requestId);
+    public ResponseEntity<Object> getHistoricalData(@PathVariable String requestId) {
+        kiteApiService.updateHistoricalData(requestId);
+        return ResponseEntity.ok("Process executed");
+    }
+
+    @GetMapping("/history/load")
+    @Operation(summary = "Import stock market data", description = "Get live market data")
+    @ApiResponse(responseCode = "200", description = "Data retrieved successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Object.class)))
+    public ResponseEntity<Object> loadHistoricalDataInternal() {
+        kiteApiService.loadHistoricalDataInternal();
         return ResponseEntity.ok("Process executed");
     }
 
